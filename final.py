@@ -8,7 +8,7 @@ cap = cv2.VideoCapture(1)
 w,h = cap.get(3),cap.get(4)
 
 def geth(obj):
-    return obj.h
+    return obj.y
 
 class Obstacle():
     def __init__(self,x,y,w,h,color):
@@ -87,8 +87,20 @@ while True:
         pass
     obstacles = Obstacles(reds,blues)
     for x in obstacles.obs:
-        print x.h,x.color,
+        print x.y,x.color,
     
+    k = 30
+    c=0
+    intensities = []
+    for ob in obstacles:
+        c = ob.x
+        for i in range(ob.x,ob.x+ob.w):
+            intensities[c++] = k
+        k-=5
+    for i in range(len(intensities)):
+        if not intensities[i]:
+            intensities[i] == "infinity"
+    print intensities
     cv2.imshow("f",f)
     cv2.waitKey(25)
     print "\n\n"

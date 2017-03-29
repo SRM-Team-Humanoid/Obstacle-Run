@@ -102,7 +102,7 @@ while True:
     cv2.imshow("f",f)
     cv2.waitKey(25)
     print "\n\n"
-    #time.sleep(1)
+    time.sleep(1)
 
 
 

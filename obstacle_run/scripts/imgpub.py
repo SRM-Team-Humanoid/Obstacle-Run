@@ -1,18 +1,45 @@
+#!/usr/bin/env python
 import cv2
 import time
 import numpy as np
+import pygame
+import rospy
+import roslib
+from std_msgs.msg import String
 
-prev = 0
+
+rospy.init_node('image_pub')
+img_pub = rospy.Publisher('image/data',String,queue_size=50)
+r = rospy.Rate(100.0)
+
+white = (255,255,255)
+black = (0,0,0)
+redc = (255,0,0)
+
+pygame.init()
+screen = pygame.display.set_mode((640,480))
+
+
 cxg,cyg,cxo,cyo = 0,0,0,0
 cap = cv2.VideoCapture(1)
 w,h = cap.get(3),cap.get(4)
 
+
+
 def geth(obj):
-    return obj.y
+    return obj.h
+
+def draw(intensities,screen):
+    global black,white
+    for i in range(640):
+        if intensities[i] != 'infi':
+            point = (i,intensities[i])
+	    pygame.draw.circle(screen,black,point,0)
+	    pygame.display.update()
 
 class Obstacle():
     def __init__(self,x,y,w,h,color):
-        self.x,self.y,self.w,self.h = x,y,w,h 
+        self.x,self.y,self.w,self.h = x,y,w,h
         self.color = color
 
 class Obstacles():
@@ -24,7 +51,7 @@ class Obstacles():
         self.sort()
 
     def sort(self):
-        self.obs = sorted(self.obs,key=geth)
+        self.obs = sorted(self.obs,key=geth,reverse=True)
         #print self.obs
 
 class vision:
@@ -32,7 +59,7 @@ class vision:
         self.low = low
         self.high = high
         self.color = self.getcolor()
-	
+
     def getcolor(self):
         global r1,r2,b1,b2,y1,y2
         if self.low == r1 and self.high == r2:
@@ -52,30 +79,35 @@ class vision:
             #c = max(contours, key=cv2.contourArea)
             if cv2.contourArea(cnt) > 6000:
                 x, y, w, h = cv2.boundingRect(cnt)
-            #print x, y, w, h
+                #print x, y, w, h
                 obs.append(Obstacle(x,y,w,h,self.color))
         return obs
 
 r1,r2 = 0,7
 y1,y2 = 20,45
-b1,b2 = 90,130 
+b1,b2 = 90,130
 
 red = vision(r1,r2)
 yellow = vision(y1,y2)
 blue = vision(b1,b2)
 
 while True:
+
     _,f = cap.read()
-    f = cv2.flip(f,1)
+    #f = cv2.flip(f,1)
     blur = cv2.medianBlur(f,5)
-    
+
+    screen.fill(white)
+    pygame.draw.line(screen,redc, (320,0), (320,480),1)
+    pygame.display.update()
+
     hsv = cv2.cvtColor(blur,cv2.COLOR_BGR2HSV)
     reds = red.objects(hsv)
     for a in reds:
         #print geth(a)
 	cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[255,0,0],2)
         pass
-    
+
     blues = blue.objects(hsv)
     for a in blues:
         #print a.x,a.y,a.w,a.h,a.color
@@ -86,24 +118,49 @@ while True:
         #cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,0,255],2)
         pass
     obstacles = Obstacles(reds,blues)
-    for x in obstacles.obs:
-        print x.y,x.color,
-    
-    k = 30
+
+    k = 400
     c=0
-    intensities = ["infi" for x in range(640)]
+    inten = ['infi' for x in range(640)]
     for ob in obstacles.obs:
         c = ob.x
         for i in range(ob.x,ob.x+ob.w):
-            intensities[c] = k
+            inten[c] = k
             c+=1
-        k-=5
-    print intensities
+        k-=50
+    draw(inten,screen)
     cv2.imshow("f",f)
-    cv2.waitKey(25)
-    print "\n\n"
-    time.sleep(1)
+    pos = int()
+    cnt = 0
+    maxi = 0
+    maxpos = int()
+    for i in range(len(inten)):
+        if inten[i] == 'infi' and inten[i-1] != 'infi':
+            cnt = 1
+            pos = i
+        elif inten[i] == 'infi' and (i == len(inten)-1 or inten[i+1] != 'infi' ):
+            cnt+=1
+            if cnt > maxi:
+                maxpos = pos
+                maxi = cnt
+            cnt = 0
+        elif inten[i] == 'infi' and inten[i-1] == 'infi':
+            cnt +=1
+    #print maxpos, maxi
+    maxcen = maxpos+maxi/2
+    print maxcen
+    if maxi >= 100:
+        if maxcen < 370 and maxcen > 270:
+            img_pub.publish('front')
+        elif maxcen > 370:
+            img_pub.publish('right')
+        else:
+            img_pub.publish('left')
+    else:
+        img_pub.publish('stay')
+    r.sleep()
+    if cv2.waitKey(25) & 0xff == 27:
+        break
 
-
-
-    
+pygame.quit()
+cv2.destroyAllWindows()

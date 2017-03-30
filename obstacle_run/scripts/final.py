@@ -1,12 +1,17 @@
+#!/usr/bin/env python
 import cv2
 import time
 import numpy as np
+import rospy
+import roslib
+from sensor_msgs.msg import LaserScan
 
-prev = 0
-cxg,cyg,cxo,cyo = 0,0,0,0
+
+rospy.init_node('laserscan_publisher')
 cap = cv2.VideoCapture(1)
 w,h = cap.get(3),cap.get(4)
-
+scan_pub = rospy.Publisher("scan", LaserScan, queue_size=50)
+r = rospy.Rate(100.0)
 def geth(obj):
     return obj.y
 
@@ -56,6 +61,7 @@ class vision:
                 obs.append(Obstacle(x,y,w,h,self.color))
         return obs
 
+
 r1,r2 = 0,7
 y1,y2 = 20,45
 b1,b2 = 90,130 
@@ -64,7 +70,7 @@ red = vision(r1,r2)
 yellow = vision(y1,y2)
 blue = vision(b1,b2)
 
-while True:
+while not rospy.is_shutdown():
     _,f = cap.read()
     f = cv2.flip(f,1)
     blur = cv2.medianBlur(f,5)
@@ -83,25 +89,39 @@ while True:
         pass
     yellows = yellow.objects(hsv)
     for a in yellows:
-        #cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,0,255],2)
+        #cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,255,0],2)
         pass
     obstacles = Obstacles(reds,blues)
     for x in obstacles.obs:
         print x.y,x.color,
     
-    k = 30
+    k = 3.0
     c=0
-    intensities = ["infi" for x in range(640)]
+    rangea = [5.0 for x in range(640)]
     for ob in obstacles.obs:
         c = ob.x
         for i in range(ob.x,ob.x+ob.w):
-            intensities[c] = k
+            rangea[c] = k
             c+=1
-        k-=5
-    print intensities
+        k-=0.4
+    print rangea
+
+    #FAKE FAKE LASERSCAN
+    scan = LaserScan()
+    scan.header.stamp = rospy.Time.now()
+    scan.header.frame_id = "camera_depth_frame"
+    scan.ranges = rangea
+    scan.intensities = []
+    scan.range_min = 0
+    scan.range_max = 4.0
+    
+    #Publish fake fake laser scan
+    scan_pub.publish(scan)
+    
     cv2.imshow("f",f)
     cv2.waitKey(25)
     print "\n\n"
+    r.sleep()
     #time.sleep(1)
 
 

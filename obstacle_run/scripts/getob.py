@@ -122,8 +122,6 @@ while True:
         k-=50
     draw(inten,screen)
     cv2.imshow("f",f)
-    if cv2.waitKey(25) == 27:
-        break
     pos = int()
     cnt = 0
     maxi = 0
@@ -141,5 +139,8 @@ while True:
         elif inten[i] == 'infi' and inten[i-1] == 'infi':
             cnt +=1
     print maxpos, maxi
+    if cv2.waitKey(25) & 0xff == 27:
+        break
 
+pygame.quit()
 cv2.destroyAllWindows()

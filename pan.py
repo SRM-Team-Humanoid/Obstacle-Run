@@ -135,7 +135,6 @@ for i in range(32,-33,-1):
     time.sleep(0.1)
     obstacles = get()
     k = 400
-    print c
     for ob in obstacles.obs:
         for j in range(ob.x,ob.x+ob.w):
             inten[start+j] = k

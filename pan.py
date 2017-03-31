@@ -135,11 +135,10 @@ for i in range(32,-33,-1):
     time.sleep(0.1)
     obstacles = get()
     k = 400
-    c = start
     print c
     for ob in obstacles.obs:
         for j in range(ob.x,ob.x+ob.w):
-            inten[c+j] = k
+            inten[start+j] = k
         #print c,i
         k-=50
     print inten

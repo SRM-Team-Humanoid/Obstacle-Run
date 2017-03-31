@@ -24,8 +24,7 @@ white = (255,255,255)
 black = (0,0,0)
 redc = (255,0,0)
 
-pygame.init()
-screen = pygame.display.set_mode((1280,480))
+
 
 
 cxg,cyg,cxo,cyo = 0,0,0,0
@@ -50,6 +49,7 @@ class Obstacle():
         self.x,self.y,self.w,self.h = x,y,w,h
         self.color = color
 
+
 class Obstacles():
     def __init__(self,reds,blues):
         self.obs = reds + blues
@@ -72,8 +72,8 @@ class vision:
         global r1,r2,b1,b2,y1,y2
         if self.low == r1 and self.high == r2:
             return 'red'
-	elif self.low == y1 and self.high == y2:
-	    return 'yellow'
+	    elif self.low == y1 and self.high == y2:
+	        return 'yellow'
         elif self.low == b1 and self.high == b2:
             return 'blue'
 
@@ -87,7 +87,7 @@ class vision:
             #c = max(contours, key=cv2.contourArea)
             if cv2.contourArea(cnt) > 6000:
                 x, y, w, h = cv2.boundingRect(cnt)
-            #print x, y, w, h
+                #print x, y, w, h
                 obs.append(Obstacle(x,y,w,h,self.color))
         return obs
 
@@ -124,6 +124,12 @@ def get():
 
 dxl_io.set_goal_position({19:32, 20:90})
 raw_input("start ?")
+
+
+pygame.init()
+screen = pygame.display.set_mode((1280,480))
+
+
 for i in range(32,-33,-1):
     dxl_io.set_goal_position({19:i, 20:90})
     time.sleep(0.1)
@@ -139,25 +145,7 @@ for i in range(32,-33,-1):
     print inten
     print "\n\n"
     start+=10
-    #print start
-    # pos = int()
-    # cnt = 0
-    # maxi = 0
-    # maxpos = int()
-    # for i in range(len(inten)):
-    #     if inten[i] == 'infi' and inten[i-1] != 'infi':
-    #         cnt = 1
-    #         pos = i
-    #     elif inten[i] == 'infi' and (i == len(inten)-1 or inten[i+1] != 'infi' ):
-    #         cnt+=1
-    #         if cnt > maxi:
-    #             maxpos = pos
-    #             maxi = cnt
-    #         cnt = 0
-    #     elif inten[i] == 'infi' and inten[i-1] == 'infi':
-    #         cnt +=1
-    # print maxpos, maxi
-#dxl_io.set_goal_position({19:0})
+
 screen.fill(white)
 pygame.draw.line(screen,redc, (640,0), (640,480),1)
 draw(inten,screen)

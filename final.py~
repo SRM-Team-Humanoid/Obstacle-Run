@@ -57,7 +57,7 @@ class vision:
         return obs
 
 r1,r2 = 0,7
-y1,y2 = 20,45
+y1,y2 = 26,32
 b1,b2 = 90,130 
 
 red = vision(r1,r2)
@@ -73,18 +73,20 @@ while True:
     reds = red.objects(hsv)
     for a in reds:
         #print geth(a)
-	cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[255,0,0],2)
+	cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,0,255],2)
         pass
     
     blues = blue.objects(hsv)
     for a in blues:
         #print a.x,a.y,a.w,a.h,a.color
-	cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,0,255],2)
+	cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[255,0,0],2)
         pass
+    
     yellows = yellow.objects(hsv)
     for a in yellows:
-        #cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,0,255],2)
+        cv2.rectangle(f,(a.x,a.y),(a.x+a.w,a.y+a.h),[0,255,255],2)
         pass
+    
     obstacles = Obstacles(reds,blues)
     for x in obstacles.obs:
         print x.y,x.color,
@@ -102,7 +104,7 @@ while True:
     cv2.imshow("f",f)
     cv2.waitKey(25)
     print "\n\n"
-    time.sleep(1)
+    #time.sleep(1)
 
 
 

@@ -26,8 +26,8 @@ def draw(intensities,screen):
     for i in range(640):
         if intensities[i] != 'infi':
             point = (i,intensities[i])
-	    pygame.draw.circle(screen,black,point,0)
-	    pygame.display.update()
+            pygame.draw.circle(screen,black,point,0)
+            pygame.display.update()
 
 class Obstacle():
     def __init__(self,x,y,w,h,color):
@@ -37,7 +37,7 @@ class Obstacle():
 class Obstacles():
     def __init__(self,reds,blues):
         self.obs = reds + blues
-	self.reds = reds
+        self.reds = reds
         #self.yellows = yellows
         self.blues = blues
         self.sort()
@@ -56,8 +56,8 @@ class vision:
         global r1,r2,b1,b2,y1,y2
         if self.low == r1 and self.high == r2:
             return 'red'
-	elif self.low == y1 and self.high == y2:
-	    return 'yellow'
+        elif self.low == y1 and self.high == y2:
+            return 'yellow'
         elif self.low == b1 and self.high == b2:
             return 'blue'
 
